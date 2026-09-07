@@ -1,5 +1,5 @@
 // src/components/ClientComponents/Applications/Applications.jsx
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import API from '../../../api/axios';
@@ -32,6 +32,42 @@ const StatusBadge = ({ status }) => {
   return <span className={`cl-badge ${badge.cls}`}>{badge.label}</span>;
 };
 
+/* ---------- Strict ID Mapping Helpers ---------- */
+const extractData = (res) => {
+  if (!res?.data) return [];
+  if (Array.isArray(res.data)) return res.data;
+  if (Array.isArray(res.data.data)) return res.data.data;
+  if (Array.isArray(res.data.results)) return res.data.results;
+  return [];
+};
+
+// Extracts custom primary key schema values cleanly
+const getRawId = (v) => {
+  if (!v) return null;
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    return (
+      v.applicationId ||
+      v.projectId ||
+      v.freelancerId ||
+      v.clientId ||
+      v.userId ||
+      v._id ||
+      v.id ||
+      null
+    );
+  }
+  return String(v);
+};
+
+// Performs exact, type-insensitive comparison across custom IDs
+const eqId = (a, b) => {
+  const idA = getRawId(a);
+  const idB = getRawId(b);
+  if (!idA || !idB) return false;
+  return String(idA) === String(idB);
+};
+
 export default function Applications() {
   const { user } = useAuth();
 
@@ -53,108 +89,116 @@ export default function Applications() {
   const [rejectReason, setRejectReason] = useState('');
   const [actionSubmitting, setActionSubmitting] = useState(false);
 
-  /* ---------- Fetch Applications ---------- */
-  useEffect(() => {
-    const fetchApplicationsData = async () => {
-      if (!user) return;
-      const currentUserId = user.userId || user._id;
+  const currentUserId = user?.userId || user?._id || user?.id;
 
-      try {
-        setLoading(true);
-        setError('');
+  /* ---------- Fetch Applications & Match In-Memory ---------- */
+  const fetchApplicationsData = useCallback(async () => {
+    if (!currentUserId) return;
 
-        // Resolve clientId
-        let clientId = currentUserId;
-        try {
-          const clientRes = await API.get(`/clients?userId=${currentUserId}`);
-          const clientData = Array.isArray(clientRes.data)
-            ? clientRes.data[0]
-            : clientRes.data?.data?.[0] || clientRes.data?.data || clientRes.data;
-          clientId = clientData?.clientId || clientData?._id || currentUserId;
-        } catch { clientId = currentUserId; }
+    try {
+      setLoading(true);
+      setError('');
 
-        // Projects map
-        const projectsRes = await API.get(`/projects?clientId=${clientId}`);
-        const projectsList = projectsRes.data?.data || projectsRes.data || [];
-        const projectsMap = new Map(projectsList.map((p) => [p.projectId || p._id, p]));
+      console.log('🔍 Executing parallel bulk collections fetch for Client User:', currentUserId);
 
-        // Applications
-        const appsRes = await API.get(`/applications?clientId=${clientId}`);
-        const appsRaw = appsRes.data?.data || appsRes.data || [];
+      // Fetch all collections in parallel to prevent query filter failures on the backend
+      const [clientsRes, projectsRes, appsRes, freelancersRes, usersRes] = await Promise.all([
+        API.get('/clients').catch(() => ({ data: [] })),
+        API.get('/projects').catch(() => ({ data: [] })),
+        API.get('/applications').catch(() => ({ data: [] })),
+        API.get('/freelancers').catch(() => ({ data: [] })),
+        API.get('/users').catch(() => ({ data: [] })),
+      ]);
 
-        const resolvedApps = await Promise.all(
-          appsRaw.map(async (app) => {
-            const projId = app.projectId?._id || app.projectId;
-            const project = projectsMap.get(projId);
-            const projectTitle = project?.title || 'Unknown Project';
+      const allClients = extractData(clientsRes);
+      const allProjects = extractData(projectsRes);
+      const allApps = extractData(appsRes);
+      const allFreelancers = extractData(freelancersRes);
+      const allUsers = extractData(usersRes);
 
-            let freelancerInfo = {
-              name: 'Unknown Freelancer',
-              headline: 'Freelancer',
-              rating: 5.0,
-              jobSuccessRate: 100,
-              hourlyRate: 0,
-              profileImage: '',
-            };
+      // 1. Match logged-in user to their unique Client profile document
+      const currentClientDoc = allClients.find((c) => eqId(c.userId, currentUserId));
+      const clientId = currentClientDoc?.clientId || currentClientDoc?._id;
 
-            const fid = app.freelancerId?._id || app.freelancerId;
-            if (fid) {
-              try {
-                const freeRes = await API.get(`/freelancers/${fid}`);
-                const freeData = freeRes.data?.data || freeRes.data;
-                const fUserId = freeData?.userId?._id || freeData?.userId;
-
-                let userResData = null;
-                if (fUserId) {
-                  const uRes = await API.get(`/users/${fUserId}`);
-                  userResData = uRes.data?.data || uRes.data;
-                }
-
-                freelancerInfo = {
-                  name: userResData
-                    ? `${userResData.firstName || ''} ${userResData.lastName || ''}`.trim() ||
-                      userResData.username
-                    : 'Active Freelancer',
-                  headline: freeData?.headline || 'Professional Freelancer',
-                  rating: freeData?.dashboardStats?.averageRating || 5.0,
-                  jobSuccessRate: freeData?.jobSuccessRate || 100,
-                  hourlyRate: freeData?.hourlyRate || 0,
-                  profileImage: userResData?.profileImage || freeData?.profileImage || '',
-                };
-              } catch { /* ignore */ }
-            }
-
-            return {
-              applicationId: app.applicationId || app._id,
-              projectId: projId,
-              projectTitle,
-              freelancerId: fid,
-              freelancer: freelancerInfo,
-              coverLetter: app.coverLetter || '',
-              proposedBudget: app.proposedBudget || 0,
-              budgetType: app.budgetType || 'fixed',
-              estimatedDuration: app.estimatedDuration || 1,
-              durationUnit: app.durationUnit || 'weeks',
-              appliedAt: app.appliedAt || app.createdAt,
-              status: app.status || 'pending',
-            };
-          })
-        );
-
-        setApplications(resolvedApps);
-      } catch (err) {
-        console.error('Error fetching applications:', err);
-        setError('Failed to load applications. Please try again later.');
-      } finally {
+      if (!clientId) {
+        console.warn('⚠️ No unique Client profile found in database matching:', currentUserId);
+        setError('Your Client profile could not be verified. Please complete your registration.');
         setLoading(false);
+        return;
       }
-    };
+      console.log('✅ Resolved Client ID:', clientId);
 
+      // 2. Filter Client's projects in memory
+      const myProjects = allProjects.filter((p) => eqId(p.clientId, clientId));
+      const projectsMap = new Map(myProjects.map((p) => [String(p.projectId || p._id), p]));
+      console.log('📁 Client projects indexed in memory:', projectsMap.size);
+
+      // 3. Filter applications for this client's projects
+      const incomingAppsRaw = allApps.filter((app) => {
+        const pRefId = getRawId(app.projectId);
+        return pRefId && projectsMap.has(String(pRefId));
+      });
+      console.log('📨 Matched incoming proposals:', incomingAppsRaw.length);
+
+      // 4. Map deep properties from matching collections with zero extra API requests
+      const resolvedApps = incomingAppsRaw.map((app) => {
+        const projId = getRawId(app.projectId);
+        const project = projectsMap.get(String(projId));
+        const projectTitle = project?.title || 'Unknown Project';
+
+        const fid = getRawId(app.freelancerId);
+        const freelancerDoc = allFreelancers.find(
+          (f) => eqId(f.freelancerId, fid) || eqId(f._id, fid)
+        );
+        const freelancerUserDoc = freelancerDoc
+          ? allUsers.find((u) => eqId(u, freelancerDoc.userId))
+          : null;
+
+        const freelancerInfo = {
+          name: freelancerUserDoc
+            ? `${freelancerUserDoc.firstName || ''} ${freelancerUserDoc.lastName || ''}`.trim() ||
+              freelancerUserDoc.username
+            : 'Active Freelancer',
+          headline: freelancerDoc?.headline || 'Professional Freelancer',
+          rating: freelancerDoc?.dashboardStats?.averageRating || freelancerDoc?.rating || 5.0,
+          jobSuccessRate: freelancerDoc?.jobSuccessRate || 100,
+          hourlyRate: freelancerDoc?.hourlyRate || 0,
+          profileImage: freelancerUserDoc?.profileImage || freelancerDoc?.profileImage || '',
+        };
+
+        const resolvedAppId = app.applicationId || app._id || app.id;
+
+        return {
+          applicationId: resolvedAppId,
+          projectId: projId,
+          projectTitle,
+          freelancerId: fid,
+          freelancer: freelancerInfo,
+          coverLetter: app.coverLetter || '',
+          proposedBudget: app.proposedBudget || 0,
+          budgetType: app.budgetType || 'fixed',
+          estimatedDuration: app.estimatedDuration || 1,
+          durationUnit: app.durationUnit || 'weeks',
+          appliedAt: app.appliedAt || app.createdAt,
+          status: app.status || 'pending',
+        };
+      });
+
+      setApplications(resolvedApps);
+    } catch (err) {
+      console.error('Error fetching applications context:', err);
+      setError('Failed to load project applications. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUserId]);
+
+  useEffect(() => {
     fetchApplicationsData();
-  }, [user]);
+  }, [fetchApplicationsData]);
 
   /* ---------- Project List for Filter ---------- */
-  const projectsList = useMemo(() => {
+  const filteredProjectList = useMemo(() => {
     const map = new Map();
     applications.forEach((a) => map.set(a.projectId, a.projectTitle));
     return Array.from(map.entries()).map(([id, title]) => ({ id, title }));
@@ -170,9 +214,10 @@ export default function Applications() {
             !app.freelancer.name.toLowerCase().includes(q) &&
             !app.projectTitle.toLowerCase().includes(q) &&
             !app.coverLetter.toLowerCase().includes(q)
-          ) return false;
+          )
+            return false;
         }
-        if (projectFilter !== 'all' && app.projectId !== projectFilter) return false;
+        if (projectFilter !== 'all' && !eqId(app.projectId, projectFilter)) return false;
         if (statusFilter !== 'all' && app.status !== statusFilter) return false;
         if (minBudget && app.proposedBudget < Number(minBudget)) return false;
         if (maxBudget && app.proposedBudget > Number(maxBudget)) return false;
@@ -187,51 +232,73 @@ export default function Applications() {
       });
   }, [applications, search, projectFilter, statusFilter, minBudget, maxBudget, sortBy]);
 
-  /* ---------- Accept / Reject ---------- */
+  /* ---------- Accept / Reject Actions ---------- */
   const handleStatusChange = async (appId, newStatus) => {
     setActionSubmitting(true);
     setError('');
 
-    const targetApp = applications.find((a) => a.applicationId === appId);
-    if (!targetApp) { setActionSubmitting(false); return; }
+    const targetApp = applications.find((a) => eqId(a.applicationId, appId));
+    if (!targetApp) {
+      console.error("Critical: Selection not mapped in state memory.");
+      setActionSubmitting(false);
+      return;
+    }
+
+    const exactAppId = getRawId(targetApp.applicationId);
+    const exactProjId = getRawId(targetApp.projectId);
+    const exactFreelancerId = getRawId(targetApp.freelancerId);
+
+    console.log(`Sending PUT to /applications/${exactAppId} status: ${newStatus}`);
 
     try {
       if (newStatus === 'rejected') {
-        await API.put(`/applications/${appId}`, {
+        // 1. PUT application rejection status update
+        await API.put(`/applications/${exactAppId}`, {
           status: 'rejected',
           clientMessage: rejectReason.trim(),
           respondedAt: new Date(),
         });
       } else if (newStatus === 'accepted') {
-        await API.put(`/applications/${appId}`, {
+        // 1. PUT application accept status update
+        await API.put(`/applications/${exactAppId}`, {
           status: 'accepted',
           respondedAt: new Date(),
         });
-        await API.put(`/projects/${targetApp.projectId}`, {
-          status: 'active',
-          freelancerId: targetApp.freelancerId,
-          startDate: new Date(),
-        });
+
+        // 2. PUT project progress status configuration update
+        try {
+          await API.put(`/projects/${exactProjId}`, {
+            status: 'in-progress',
+            freelancerId: exactFreelancerId,
+            startDate: new Date(),
+          });
+        } catch (projErr) {
+          console.warn("Schema does not support 'in-progress' status path. Standardizing structure:", projErr.message);
+          await API.put(`/projects/${exactProjId}`, {
+            status: 'in_progress',
+            freelancerId: exactFreelancerId,
+            startDate: new Date(),
+          });
+        }
       }
 
+      // Synchronize in-memory applications state array
       setApplications((prev) =>
-        prev.map((app) =>
-          app.applicationId === appId ? { ...app, status: newStatus } : app
-        )
+        prev.map((app) => (eqId(app.applicationId, appId) ? { ...app, status: newStatus } : app))
       );
 
       setConfirmAction(null);
       setSelectedApp(null);
       setRejectReason('');
     } catch (err) {
-      console.error(`Failed to update status:`, err);
-      setError(err.response?.data?.message || 'Failed to update proposal status.');
+      console.error(`Failed to execute proposal state mutation:`, err);
+      setError(err.response?.data?.message || 'Database update rejected. Check server state logs.');
     } finally {
       setActionSubmitting(false);
     }
   };
 
-  /* ---------- Loading ---------- */
+  /* ---------- Loading Screen ---------- */
   if (loading) {
     return (
       <div className="cl-apps-loading">
@@ -243,7 +310,7 @@ export default function Applications() {
 
   return (
     <div className="cl-apps-page">
-      {/* Gradient Page Header */}
+      {/* Page Header */}
       <div className="cl-apps-hero">
         <div className="cl-apps-hero-inner">
           <h1>Applications</h1>
@@ -252,9 +319,16 @@ export default function Applications() {
       </div>
 
       <div className="cl-apps-wrap">
-        {error && <div className="cl-apps-alert">{error}</div>}
+        {error && (
+          <div
+            className="cl-apps-alert"
+            style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' }}
+          >
+            ⚠️ {error}
+          </div>
+        )}
 
-        {/* Filter Bar */}
+        {/* Filter Toolbar */}
         <div className="cl-filter-bar">
           <div className="cl-filter-row">
             <div className="cl-search-box">
@@ -276,8 +350,10 @@ export default function Applications() {
           <div className="cl-filter-row secondary">
             <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)}>
               <option value="all">All Projects</option>
-              {projectsList.map((p) => (
-                <option key={p.id} value={p.id}>{p.title}</option>
+              {filteredProjectList.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
               ))}
             </select>
 
@@ -304,7 +380,11 @@ export default function Applications() {
               />
             </div>
 
-            {(search || projectFilter !== 'all' || statusFilter !== 'all' || minBudget || maxBudget) && (
+            {(search ||
+              projectFilter !== 'all' ||
+              statusFilter !== 'all' ||
+              minBudget ||
+              maxBudget) && (
               <button
                 type="button"
                 className="cl-btn-sm"
@@ -323,11 +403,11 @@ export default function Applications() {
         </div>
 
         <div className="cl-count-label">
-          Showing <strong>{filteredApps.length}</strong> of{' '}
-          <strong>{applications.length}</strong> proposals
+          Showing <strong>{filteredApps.length}</strong> of <strong>{applications.length}</strong>{' '}
+          proposals
         </div>
 
-        {/* Cards Feed */}
+        {/* Proposals Feed */}
         {filteredApps.length === 0 ? (
           <div className="cl-empty-box">
             <div className="cl-empty-emoji">📭</div>
@@ -427,20 +507,25 @@ export default function Applications() {
         )}
       </div>
 
-      {/* Detail Modal */}
+      {/* Details Drawer Modal */}
       {selectedApp && (
         <div className="cl-modal-overlay" onClick={() => setSelectedApp(null)}>
           <div className="cl-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="cl-modal-header">
               <h2>Proposal Details</h2>
-              <button className="cl-modal-close-btn" onClick={() => setSelectedApp(null)}>×</button>
+              <button className="cl-modal-close-btn" onClick={() => setSelectedApp(null)}>
+                ×
+              </button>
             </div>
 
             <div className="cl-modal-content">
               <div className="cl-modal-profile">
                 <div className="cl-avatar-circle lg">
                   {selectedApp.freelancer.profileImage ? (
-                    <img src={selectedApp.freelancer.profileImage} alt={selectedApp.freelancer.name} />
+                    <img
+                      src={selectedApp.freelancer.profileImage}
+                      alt={selectedApp.freelancer.name}
+                    />
                   ) : (
                     selectedApp.freelancer.name.charAt(0).toUpperCase()
                   )}
@@ -475,7 +560,9 @@ export default function Applications() {
                 </div>
                 <div>
                   <span className="cl-section-tag">Duration</span>
-                  <strong>{selectedApp.estimatedDuration} {selectedApp.durationUnit}</strong>
+                  <strong>
+                    {selectedApp.estimatedDuration} {selectedApp.durationUnit}
+                  </strong>
                 </div>
                 <div>
                   <span className="cl-section-tag">Submission Date</span>
@@ -483,7 +570,9 @@ export default function Applications() {
                 </div>
                 <div>
                   <span className="cl-section-tag">Current Status</span>
-                  <div><StatusBadge status={selectedApp.status} /></div>
+                  <div>
+                    <StatusBadge status={selectedApp.status} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -513,9 +602,12 @@ export default function Applications() {
         </div>
       )}
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Action Modal */}
       {confirmAction && (
-        <div className="cl-modal-overlay" onClick={() => !actionSubmitting && setConfirmAction(null)}>
+        <div
+          className="cl-modal-overlay"
+          onClick={() => !actionSubmitting && setConfirmAction(null)}
+        >
           <div className="cl-modal-card sm" onClick={(e) => e.stopPropagation()}>
             <div className="cl-modal-header">
               <h2>
@@ -561,7 +653,9 @@ export default function Applications() {
                 Cancel
               </button>
               <button
-                className={`cl-btn ${confirmAction.type === 'accept' ? 'cl-btn-primary' : 'cl-btn-danger'}`}
+                className={`cl-btn ${
+                  confirmAction.type === 'accept' ? 'cl-btn-primary' : 'cl-btn-danger'
+                }`}
                 disabled={actionSubmitting}
                 onClick={() =>
                   handleStatusChange(
