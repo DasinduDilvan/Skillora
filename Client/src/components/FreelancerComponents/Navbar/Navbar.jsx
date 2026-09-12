@@ -1,3 +1,4 @@
+// src/components/FreelancerComponents/Navbar/Navbar.jsx
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -11,10 +12,36 @@ const freelancerLinks = [
   { id: 4, label: 'Notifications', path: '/freelancer/notifications' },
 ];
 
+/* ── helpers ── */
+const asArray = (res) => {
+  const d = res?.data;
+  if (Array.isArray(d)) return d;
+  if (Array.isArray(d?.data)) return d.data;
+  if (Array.isArray(d?.results)) return d.results;
+  return [];
+};
+
+const rid = (v) => {
+  if (!v) return null;
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    return v.freelancerId || v.userId || v.projectId || v._id || v.id || null;
+  }
+  return String(v);
+};
+
+const eqId = (a, b) => {
+  const x = rid(a), y = rid(b);
+  return x && y && String(x) === String(y);
+};
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [counts, setCounts] = useState({
+    notifications: 0,
+    myProjects: 0,
+  });
 
   const menuRef = useRef(null);
   const btnRef = useRef(null);
@@ -31,30 +58,56 @@ export default function Navbar() {
     (user?.email ? user.email.split('@')[0] : 'Freelancer');
 
   const avatarLetter = freelancerName.charAt(0).toUpperCase();
+  const currentUserId = user?.userId || user?._id || user?.id;
 
-  // Fetch real unread notification count from API
+  /* ── Fetch live counts (notifications + my projects) ── */
   useEffect(() => {
-    if (!user) return;
+    if (!user || !currentUserId) return;
 
-    const fetchUnread = async () => {
+    const fetchCounts = async () => {
       try {
-        const res = await API.get('/notifications');
-        const notifications = res.data?.data || res.data || [];
-        const userId = user.userId || user._id;
+        const [notifRes, freelancersRes, projectsRes] = await Promise.all([
+          API.get('/notifications').catch(() => ({ data: [] })),
+          API.get('/freelancers').catch(() => ({ data: [] })),
+          API.get('/projects').catch(() => ({ data: [] })),
+        ]);
+
+        const notifications = asArray(notifRes);
+        const freelancers = asArray(freelancersRes);
+        const projects = asArray(projectsRes);
+
+        // unread notifications
         const unread = notifications.filter(
-          (n) => n.userId === userId && !n.isRead
+          (n) => eqId(n.userId, currentUserId) && !n.isRead
         ).length;
-        setUnreadCount(unread);
+
+        // find this user's freelancer profile
+        const myFreelancer = freelancers.find((f) => eqId(f.userId, currentUserId));
+        const freelancerId = myFreelancer?.freelancerId || myFreelancer?._id;
+
+        // count active (non-completed / non-cancelled) projects assigned to me
+        let myProjectsCount = 0;
+        if (freelancerId) {
+          myProjectsCount = projects.filter((p) => {
+            if (!eqId(p.freelancerId, freelancerId)) return false;
+            const status = (p.status || '').toLowerCase();
+            return status !== 'completed' && status !== 'cancelled';
+          }).length;
+        }
+
+        setCounts({
+          notifications: unread,
+          myProjects: myProjectsCount,
+        });
       } catch (err) {
-        console.error('Failed to load notifications count:', err);
+        console.error('Failed to load navbar counts:', err);
       }
     };
 
-    fetchUnread();
-    // Poll every 60 seconds for new notifications
-    const interval = setInterval(fetchUnread, 60000);
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 60000); // refresh every 60s
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, currentUserId]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -86,6 +139,13 @@ export default function Navbar() {
     navigate('/auth/signin');
   };
 
+  /* ── returns the badge number for a given link label ── */
+  const getBadge = (label) => {
+    if (label === 'Notifications') return counts.notifications;
+    if (label === 'My Projects') return counts.myProjects;
+    return 0;
+  };
+
   return (
     <nav className="role-navbar">
       <div className="role-navbar-container">
@@ -95,18 +155,21 @@ export default function Navbar() {
         </Link>
 
         <div className="role-navbar-links">
-          {freelancerLinks.map((link) => (
-            <Link
-              key={link.id}
-              to={link.path}
-              className={location.pathname === link.path ? 'active' : ''}
-            >
-              {link.label}
-              {link.label === 'Notifications' && unreadCount > 0 && (
-                <span className="nav-badge">{unreadCount}</span>
-              )}
-            </Link>
-          ))}
+          {freelancerLinks.map((link) => {
+            const badge = getBadge(link.label);
+            return (
+              <Link
+                key={link.id}
+                to={link.path}
+                className={location.pathname === link.path ? 'active' : ''}
+              >
+                {link.label}
+                {badge > 0 && (
+                  <span className="nav-badge">{badge > 99 ? '99+' : badge}</span>
+                )}
+              </Link>
+            );
+          })}
         </div>
 
         <div className="role-navbar-user-section" ref={profileRef}>
@@ -184,18 +247,23 @@ export default function Navbar() {
         </div>
 
         <div className="mobile-core-links">
-          {freelancerLinks.map((link) => (
-            <Link
-              key={link.id}
-              to={link.path}
-              className={location.pathname === link.path ? 'active' : ''}
-            >
-              {link.label}
-              {link.label === 'Notifications' && unreadCount > 0 && (
-                <span className="nav-badge mobile-badge">{unreadCount}</span>
-              )}
-            </Link>
-          ))}
+          {freelancerLinks.map((link) => {
+            const badge = getBadge(link.label);
+            return (
+              <Link
+                key={link.id}
+                to={link.path}
+                className={location.pathname === link.path ? 'active' : ''}
+              >
+                {link.label}
+                {badge > 0 && (
+                  <span className="nav-badge mobile-badge">
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
 
         <hr className="mobile-divider" />
