@@ -1564,3 +1564,412 @@
   .mp-modal-actions { flex-direction: column; }
   .mp-d-freelancer { flex-direction: column; }
 }
+
+/* ============================================================
+   NEW FEATURES: Detail Tabs, Task Form, Submissions, Budget
+============================================================ */
+
+/* Success alert */
+.mp-alert.success {
+  background: #F0FDF4;
+  border-color: #A7F3D0;
+  color: #065F46;
+}
+
+/* Detail Drawer Tabs */
+.mp-drawer-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 30px;
+  background: #ffffff;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.mp-drawer-tab {
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.mp-drawer-tab:hover { color: #334155; }
+
+.mp-drawer-tab.active {
+  color: #4F46E5;
+  border-bottom-color: #4F46E5;
+}
+
+.mp-d-section-header {
+  margin-bottom: 16px;
+}
+
+.mp-d-section-header h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+
+.mp-d-section-header p {
+  font-size: 0.85rem;
+  color: #64748B;
+  margin: 0;
+}
+
+/* Budget Summary Bar */
+.mp-budget-summary {
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border: 1px solid #C7D2FE;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.mp-budget-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.mp-budget-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mp-bs-label {
+  font-size: 0.7rem;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}
+
+.mp-bs-total {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #4F46E5;
+}
+
+.mp-budget-row strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.mp-budget-row strong.green { color: #22C55E; }
+.mp-budget-row strong.danger { color: #EF4444; }
+
+.mp-budget-bar-outer {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.mp-budget-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4F46E5, #7C3AED);
+  border-radius: 50px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mp-budget-bar-fill.exceeded {
+  background: linear-gradient(90deg, #EF4444, #DC2626);
+}
+
+.mp-budget-warn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #FEE2E2;
+  color: #991B1B;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Task Creation Form */
+.mp-task-form-card {
+  background: #ffffff;
+  border: 2px solid #C7D2FE;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  animation: mpSlideDown 0.25s ease;
+}
+
+@keyframes mpSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mp-task-form-card h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 16px;
+}
+
+.mp-form-field {
+  margin-bottom: 14px;
+}
+
+.mp-form-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.mp-form-field input,
+.mp-form-field textarea,
+.mp-form-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.87rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #ffffff;
+}
+
+.mp-form-field input:focus,
+.mp-form-field textarea:focus,
+.mp-form-field select:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.mp-form-field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.mp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.mp-cost-input {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.mp-cost-input:focus-within {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.mp-cost-input span {
+  padding: 10px 12px;
+  background: #F8FAFC;
+  color: #64748B;
+  font-weight: 700;
+  border-right: 1px solid #E2E8F0;
+}
+
+.mp-cost-input input {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.87rem;
+}
+
+.mp-form-error {
+  padding: 10px 12px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+
+.mp-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Task Delete Button */
+.mp-task-del {
+  background: #FEE2E2;
+  color: #B91C1C;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+
+.mp-task-del:hover { background: #EF4444; color: #ffffff; }
+
+/* Task Completed Timestamp */
+.mp-task-completed {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #F0FDF4;
+  color: #15803D;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mp-task.done {
+  background: linear-gradient(#ffffff, #F0FDF4);
+  border-color: #A7F3D0;
+}
+
+/* Submissions List */
+.mp-submission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mp-submission-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.mp-sub-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mp-sub-num {
+  width: 34px;
+  height: 34px;
+  background: #EEF2FF;
+  color: #4F46E5;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.mp-sub-info { flex: 1; min-width: 0; }
+
+.mp-sub-info strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.mp-sub-info span {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.mp-sub-note-box {
+  padding: 12px 14px;
+  background: #EEF2FF;
+  border-left: 3px solid #4F46E5;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.mp-sub-note-box strong {
+  display: block;
+  color: #3730A3;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.mp-sub-note-box p { margin: 0; color: #334155; }
+
+.mp-sub-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mp-sub-files-label {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.mp-sub-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #F8FAFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mp-sub-file-item:hover { border-color: #C7D2FE; background: #ffffff; }
+
+.mp-sub-file-icon {
+  width: 34px;
+  height: 34px;
+  background: #EEF2FF;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.mp-sub-file-info { flex: 1; min-width: 0; }
+
+.mp-sub-file-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #0F172A;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-sub-file-info span {
+  font-size: 0.73rem;
+  color: #94A3B8;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .mp-form-grid { grid-template-columns: 1fr; }
+  .mp-budget-row { grid-template-columns: 1fr; gap: 10px; }
+  .mp-drawer-tabs { padding: 0 20px; }
+}
