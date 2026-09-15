@@ -1,0 +1,807 @@
+/* ============================================================
+   FREELANCER NOTIFICATIONS PAGE (Indigo & Purple Theme)
+============================================================ */
+.fnot-page {
+  background: #F5F7FA;
+  min-height: calc(100vh - 72px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding-bottom: 60px;
+  position: relative;
+}
+
+/* ── TOAST ── */
+.fnot-toast {
+  position: fixed;
+  top: 88px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  animation: fnotToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 420px;
+}
+
+.fnot-toast.success { background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; }
+.fnot-toast.error { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+
+.fnot-toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.fnot-toast-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0 2px;
+  margin-left: 8px;
+  line-height: 1;
+}
+
+.fnot-toast-close:hover { opacity: 1; }
+
+@keyframes fnotToastIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── LOADING ── */
+.fnot-loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  color: #64748B;
+  text-align: center;
+}
+
+.fnot-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #E5E7EB;
+  border-top-color: #4F46E5;
+  border-radius: 50%;
+  animation: fnotSpin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes fnotSpin { to { transform: rotate(360deg); } }
+
+/* ── HERO ── */
+.fnot-hero {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  padding: 44px 4% 40px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.fnot-hero::before {
+  content: '';
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  top: -140px;
+  right: -60px;
+  filter: blur(50px);
+}
+
+.fnot-hero-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.fnot-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.fnot-hero h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.fnot-hero p {
+  opacity: 0.92;
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: 520px;
+  color: #ffffff;
+}
+
+.fnot-hero-unread {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 16px 26px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+}
+
+.fnot-hero-unread-num {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.fnot-hero-unread-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 4px;
+}
+
+/* ── STATS ── */
+.fnot-stats-strip {
+  max-width: 1600px;
+  margin: -24px auto 0;
+  padding: 0 4%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  position: relative;
+  z-index: 10;
+}
+
+.fnot-stat {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.fnot-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.fnot-stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.fnot-stat.blue .fnot-stat-icon { background: #DBEAFE; }
+.fnot-stat.green .fnot-stat-icon { background: #DCFCE7; }
+.fnot-stat.purple .fnot-stat-icon { background: #F3E8FF; }
+.fnot-stat.amber .fnot-stat-icon { background: #FEF3C7; }
+
+.fnot-stat-num {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.1;
+}
+
+.fnot-stat-lbl {
+  display: block;
+  font-size: 0.75rem;
+  color: #94A3B8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 2px;
+}
+
+/* ── CONTAINER ── */
+.fnot-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px 4% 0;
+}
+
+/* ── TABS ── */
+.fnot-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 18px;
+  scrollbar-width: thin;
+}
+
+.fnot-tabs::-webkit-scrollbar { height: 4px; }
+.fnot-tabs::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+.fnot-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 50px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.fnot-tab:hover { border-color: #CBD5E1; color: #334155; }
+
+.fnot-tab.active {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+}
+
+.fnot-tab-icon { font-size: 0.95rem; }
+
+.fnot-tab-count {
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 50px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.fnot-tab.active .fnot-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ── TOOLBAR ── */
+.fnot-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.fnot-search {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fnot-search-icon {
+  position: absolute;
+  left: 15px;
+  color: #94A3B8;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.fnot-search input {
+  width: 100%;
+  padding: 12px 40px 12px 42px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.fnot-search input:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.fnot-search-clear {
+  position: absolute;
+  right: 12px;
+  background: #F1F5F9;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #64748B;
+  font-size: 1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.fnot-search-clear:hover { background: #E2E8F0; }
+
+.fnot-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fnot-selected-count {
+  font-size: 0.85rem;
+  color: #4F46E5;
+  font-weight: 700;
+  padding: 6px 12px;
+  background: #EEF2FF;
+  border-radius: 8px;
+}
+
+/* ── SELECT BAR ── */
+.fnot-select-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 4px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.fnot-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #64748B;
+  font-weight: 600;
+  user-select: none;
+}
+
+.fnot-checkbox-wrap input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fnot-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #CBD5E1;
+  border-radius: 5px;
+  background: #ffffff;
+  transition: all 0.2s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.fnot-checkbox-wrap input[type="checkbox"]:checked + .fnot-checkbox,
+.fnot-item-check input[type="checkbox"]:checked + .fnot-checkbox {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  border-color: #4F46E5;
+}
+
+.fnot-checkbox-wrap input[type="checkbox"]:checked + .fnot-checkbox::after,
+.fnot-item-check input[type="checkbox"]:checked + .fnot-checkbox::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.fnot-count-info {
+  font-size: 0.85rem;
+  color: #64748B;
+}
+
+.fnot-count-info strong {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+/* ── LIST ── */
+.fnot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fnot-group {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.fnot-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #FAFBFC, #F5F7FA);
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.fnot-group-header h3 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #4F46E5;
+  margin: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.fnot-group-header span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748B;
+  background: #ffffff;
+  padding: 3px 10px;
+  border-radius: 50px;
+  border: 1px solid #E2E8F0;
+}
+
+.fnot-group-items {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── ITEM ── */
+.fnot-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #F8FAFC;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.fnot-item:last-child { border-bottom: none; }
+
+.fnot-item:hover {
+  background: #FAFBFC;
+}
+
+.fnot-item.unread {
+  background: linear-gradient(90deg, #F5F3FF, #ffffff);
+}
+
+.fnot-item.unread:hover {
+  background: linear-gradient(90deg, #EEF2FF, #FAFBFC);
+}
+
+.fnot-item.selected {
+  background: #EEF2FF;
+}
+
+.fnot-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #4F46E5, #7C3AED);
+}
+
+.fnot-item-check {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding-top: 12px;
+  flex-shrink: 0;
+}
+
+.fnot-item-check input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fnot-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+}
+
+.fnot-item-icon.blue { background: #DBEAFE; border-color: #BFDBFE; }
+.fnot-item-icon.green { background: #DCFCE7; border-color: #BBF7D0; }
+.fnot-item-icon.purple { background: #F3E8FF; border-color: #E9D5FF; }
+.fnot-item-icon.amber { background: #FEF3C7; border-color: #FDE68A; }
+.fnot-item-icon.red { background: #FEE2E2; border-color: #FECACA; }
+.fnot-item-icon.gray { background: #F1F5F9; border-color: #E2E8F0; }
+
+.fnot-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.fnot-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.fnot-item-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.fnot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  flex-shrink: 0;
+  animation: fnotPulse 2s infinite;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+@keyframes fnotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.fnot-item-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fnot-item.unread .fnot-item-title {
+  font-weight: 800;
+}
+
+.fnot-type-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 50px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.fnot-type-pill.blue { background: #DBEAFE; color: #2563EB; }
+.fnot-type-pill.green { background: #DCFCE7; color: #15803D; }
+.fnot-type-pill.purple { background: #F3E8FF; color: #7C3AED; }
+.fnot-type-pill.amber { background: #FEF3C7; color: #D97706; }
+.fnot-type-pill.red { background: #FEE2E2; color: #B91C1C; }
+.fnot-type-pill.gray { background: #F1F5F9; color: #64748B; }
+
+.fnot-item-time {
+  font-size: 0.76rem;
+  color: #94A3B8;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fnot-item-msg {
+  font-size: 0.86rem;
+  color: #64748B;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+.fnot-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.fnot-mini-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fnot-mini-btn:hover {
+  border-color: #4F46E5;
+  color: #4F46E5;
+  background: #EEF2FF;
+}
+
+.fnot-mini-btn.danger:hover {
+  border-color: #EF4444;
+  color: #EF4444;
+  background: #FEF2F2;
+}
+
+/* ── BUTTONS ── */
+.fnot-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.fnot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fnot-btn-primary {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+}
+
+.fnot-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.38);
+  transform: translateY(-1px);
+}
+
+.fnot-btn-outline {
+  background: #ffffff;
+  color: #4F46E5;
+  border: 1.5px solid #C7D2FE;
+}
+
+.fnot-btn-outline:hover:not(:disabled) {
+  background: #EEF2FF;
+  border-color: #4F46E5;
+}
+
+.fnot-btn-outline-danger {
+  background: #ffffff;
+  color: #EF4444;
+  border: 1.5px solid #FECACA;
+}
+
+.fnot-btn-outline-danger:hover:not(:disabled) {
+  background: #FEF2F2;
+  border-color: #EF4444;
+}
+
+.fnot-btn-ghost {
+  background: transparent;
+  color: #64748B;
+  border: 1.5px solid #E2E8F0;
+}
+
+.fnot-btn-ghost:hover:not(:disabled) {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #334155;
+}
+
+.fnot-btn-danger {
+  background: #EF4444;
+  color: #ffffff;
+}
+
+.fnot-btn-danger:hover:not(:disabled) {
+  background: #DC2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ── EMPTY ── */
+.fnot-empty {
+  text-align: center;
+  padding: 70px 24px;
+  background: #ffffff;
+  border: 1.5px dashed #E2E8F0;
+  border-radius: 20px;
+}
+
+.fnot-empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+
+.fnot-empty h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 8px;
+}
+
+.fnot-empty p {
+  color: #64748B;
+  font-size: 0.9rem;
+  max-width: 420px;
+  margin: 0 auto 22px;
+  line-height: 1.65;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  .fnot-hero-inner { flex-direction: column; align-items: flex-start; }
+  .fnot-hero-unread { align-self: stretch; flex-direction: row; justify-content: space-between; align-items: center; }
+  .fnot-hero-unread-num { font-size: 1.6rem; }
+}
+
+@media (max-width: 700px) {
+  .fnot-hero { padding: 32px 5% 34px; }
+  .fnot-hero h1 { font-size: 1.5rem; }
+  .fnot-hero p { font-size: 0.85rem; }
+  .fnot-stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .fnot-toolbar { flex-direction: column; align-items: stretch; }
+  .fnot-toolbar-actions { justify-content: flex-end; }
+  .fnot-item { padding: 14px 12px; gap: 10px; }
+  .fnot-item-icon { width: 38px; height: 38px; font-size: 1.1rem; }
+  .fnot-item-check { padding-top: 10px; }
+  .fnot-item-title { font-size: 0.88rem; }
+  .fnot-item-msg { font-size: 0.82rem; }
+  .fnot-toast { left: 16px; right: 16px; max-width: none; }
+}
+
+@media (max-width: 480px) {
+  .fnot-container { padding: 16px 3% 0; }
+  .fnot-item-head { flex-direction: column; align-items: flex-start; }
+  .fnot-item-time { align-self: flex-start; }
+  .fnot-type-pill { font-size: 0.62rem; padding: 2px 8px; }
+}

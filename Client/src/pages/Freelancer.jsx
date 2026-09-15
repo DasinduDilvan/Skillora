@@ -6,6 +6,8 @@ import Dashboard from '../components/FreelancerComponents/Dashboard/Dashboard';
 import BrowseProjects from '../components/FreelancerComponents/BrowseProjects/BrowseProjects';
 import MyProjects from '../components/FreelancerComponents/MyProjects/MyProjects';
 import Profile from '../components/FreelancerComponents/Profile/Profile';
+import Settings from '../components/FreelancerComponents/Settings/Settings';
+import Notifications from '../components/FreelancerComponents/Notifications/Notifications';
 
 // Placeholder view for secondary Freelancer sub-pages
 const FreelancerPlaceholder = ({ title }) => (
@@ -89,11 +91,11 @@ export default function Freelancer() {
       case 'my-projects':
         return <MyProjects />;
       case 'notifications':
-        return <FreelancerPlaceholder title="Notifications & Application Status" />;
+        return <Notifications />;
       case 'profile':
         return <Profile />;
       case 'settings':
-        return <FreelancerPlaceholder title="Freelancer Settings" />;
+        return <Settings />;
       default:
         return <Navigate to="/freelancer/dashboard" replace />;
     }
