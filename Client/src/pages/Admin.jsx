@@ -3,6 +3,12 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/AdminComponents/Navbar/Navbar';
 import Dashboard from '../components/AdminComponents/Dashboard/Dashboard';
+import Users from '../components/AdminComponents/Users/Users';
+import Projects from '../components/AdminComponents/Projects/Projects';
+import Categories from '../components/AdminComponents/Categories/Categories';
+import Payments from '../components/AdminComponents/Payments/Payments';
+import Reports from '../components/AdminComponents/Reports/Reports';
+import Settings from '../components/AdminComponents/Settings/Settings';
 
 export default function Admin() {
   const { section } = useParams();
@@ -13,14 +19,14 @@ export default function Admin() {
 
   const renderSection = () => {
     switch (section) {
-      case 'dashboard': return <Dashboard />;
-      case 'users': return <PlaceholderPage title="Manage Users" />;
-      case 'projects': return <PlaceholderPage title="Manage Projects" />;
-      case 'categories': return <PlaceholderPage title="Manage Categories" />;
-      case 'payments': return <PlaceholderPage title="Payment Transactions" />;
-      case 'reports': return <PlaceholderPage title="Reports & Complaints" />;
-      case 'settings': return <PlaceholderPage title="Platform Settings" />;
-      default: return <Dashboard />;
+      case 'dashboard':  return <Dashboard />;
+      case 'users':      return <Users />;
+      case 'projects':   return <Projects />;
+      case 'categories': return <Categories />;
+      case 'payments':   return <Payments />;
+      case 'reports':    return <Reports />;
+      case 'settings':   return <Settings />;
+      default:           return <Dashboard />;
     }
   };
 
@@ -29,16 +35,5 @@ export default function Admin() {
       <Navbar />
       <main className="role-main">{renderSection()}</main>
     </>
-  );
-}
-
-function PlaceholderPage({ title }) {
-  return (
-    <div style={{ padding: '60px 24px', textAlign: 'center', minHeight: '60vh' }}>
-      <h1 style={{ fontSize: '2rem', color: 'var(--text)' }}>{title}</h1>
-      <p style={{ color: 'var(--text-light)', marginTop: '10px' }}>
-        This section is under construction.
-      </p>
-    </div>
   );
 }

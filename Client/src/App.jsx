@@ -6,12 +6,17 @@ import Client from './pages/Client';
 import Freelancer from './pages/Freelancer';
 import Admin from './pages/Admin';
 import './App.css';
+import PublicBrowseProjects from './components/HomeComponents/PublicBrowseProjects/PublicBrowseProjects';
 
 function App() {
   return (
     <Routes>
       {/* Landing Page */}
       <Route path="/" element={<Home />} />
+
+      {/* Public Browse Projects */}
+      <Route path="/browse" element={<PublicBrowseProjects />} /> {/* <-- 2. Add route */}
+      <Route path="/projects" element={<Navigate to="/browse" replace />} />
 
       {/* Auth Routes */}
       <Route path="/auth/:mode" element={<Auth />} />

@@ -1,0 +1,41 @@
+/* Project-specific overrides */
+.adm-modal-lg { max-width: 780px; }
+
+.adm-project-head {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.adm-cat-tag {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adm-proj-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.adm-proj-desc {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Status colors */
+.status-draft { background: #f1f5f9; color: #64748b; }
+.status-open { background: #dcfce7; color: #15803d; }
+.status-active,
+.status-in-progress { background: #dbeafe; color: #2563eb; }
+.status-completed { background: #f3e8ff; color: #7c3aed; }
+.status-cancelled { background: #fee2e2; color: #b91c1c; }
