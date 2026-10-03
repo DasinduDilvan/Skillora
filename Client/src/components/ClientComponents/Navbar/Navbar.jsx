@@ -26,7 +26,7 @@ const rid = (v) => {
   if (!v) return null;
   if (typeof v === 'string') return v;
   if (typeof v === 'object') {
-    return v.clientId || v.userId || v.projectId || v._id || v.id || null;
+    return v.clientId || v.userId || v.projectId || v.paymentId || v._id || v.id || null;
   }
   return String(v);
 };
@@ -77,7 +77,7 @@ export default function Navbar() {
         const projects = asArray(projectsRes);
         const applications = asArray(applicationsRes);
 
-        // find this user's client profile
+        // Find this user's client profile
         const myClient = clients.find((c) => eqId(c.userId, currentUserId));
         const clientId = myClient?.clientId || myClient?._id;
 
@@ -86,14 +86,14 @@ export default function Navbar() {
           return;
         }
 
-        // count active projects (not completed/cancelled) posted by this client
+        // Count active projects (not completed/cancelled) posted by this client
         const myProjects = projects.filter((p) => eqId(p.clientId, clientId));
         const myProjectsCount = myProjects.filter((p) => {
           const status = (p.status || '').toLowerCase();
           return status !== 'completed' && status !== 'cancelled';
         }).length;
 
-        // pending applications for this client's projects
+        // Count pending applications for this client's projects
         const myProjectIds = new Set(
           myProjects.map((p) => String(p.projectId || p._id))
         );
@@ -208,6 +208,9 @@ export default function Navbar() {
               <Link to="/client/profile" className="dropdown-item">
                 👤 My Profile
               </Link>
+              <Link to="/client/payments" className="dropdown-item">
+                💳 Payments & Invoices
+              </Link>
               <Link to="/client/settings" className="dropdown-item">
                 ⚙️ Settings
               </Link>
@@ -276,6 +279,9 @@ export default function Navbar() {
         <div className="mobile-profile-actions">
           <Link to="/client/profile" className="mobile-profile-link">
             👤 My Profile
+          </Link>
+          <Link to="/client/payments" className="mobile-profile-link">
+            💳 Payments & Invoices
           </Link>
           <Link to="/client/settings" className="mobile-profile-link">
             ⚙️ Settings

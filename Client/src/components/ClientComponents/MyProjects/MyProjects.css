@@ -1973,3 +1973,243 @@
   .mp-budget-row { grid-template-columns: 1fr; gap: 10px; }
   .mp-drawer-tabs { padding: 0 20px; }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   PAYHERE CHECKOUT MODAL (2-COLUMN DESIGN)
+============================================================ */
+.checkout-modal {
+  max-width: 660px !important;
+  text-align: left !important;
+  position: relative;
+  padding: 32px 30px !important;
+  border-top: 5px solid #10B981 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 20px !important;
+}
+
+.mp-modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #F1F5F9;
+  transition: all 0.2s;
+}
+
+.mp-modal-close-btn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.checkout-header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.checkout-icon {
+  font-size: 2.2rem;
+  width: 54px;
+  height: 54px;
+  background: #DCFCE7;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.checkout-modal h3 {
+  margin: 0 0 3px 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.checkout-sub {
+  font-size: 0.84rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Order Item & Currency Summary Grid */
+.order-summary-box {
+  background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+  border: 1px dashed #86EFAC;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.summary-item span {
+  font-size: 0.72rem;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}
+
+.summary-item strong {
+  font-size: 0.95rem;
+  color: #0F172A;
+  font-weight: 800;
+}
+
+.summary-item.total strong {
+  font-size: 1.1rem;
+}
+
+.green-text {
+  color: #15803D !important;
+}
+
+/* 2-Column Billing Form Layout */
+.billing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.billing-form .form-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #4F46E5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1.5px solid #F1F5F9;
+  padding-bottom: 6px;
+}
+
+.billing-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+.billing-form .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.billing-form .field-group label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.billing-form .field-group input {
+  padding: 11px 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  outline: none;
+  background: #ffffff;
+  transition: all 0.2s;
+  font-family: inherit;
+  color: #0F172A;
+}
+
+.billing-form .field-group input:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-info-note {
+  font-size: 0.75rem;
+  color: #64748B;
+  background: #F8FAFC;
+  padding: 11px 14px;
+  border-radius: 9px;
+  border: 1px solid #E2E8F0;
+  line-height: 1.5;
+}
+
+.mp-modal-actions.checkout {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.mp-modal-actions.checkout .mp-btn {
+  flex: 0 1 auto;
+  min-width: 130px;
+  padding: 12px 22px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .checkout-modal {
+    padding: 24px 18px !important;
+  }
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .billing-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .checkout-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .mp-modal-actions.checkout {
+    flex-direction: column;
+  }
+  .mp-modal-actions.checkout .mp-btn {
+    width: 100%;
+  }
+}

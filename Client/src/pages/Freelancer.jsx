@@ -8,6 +8,7 @@ import MyProjects from '../components/FreelancerComponents/MyProjects/MyProjects
 import Profile from '../components/FreelancerComponents/Profile/Profile';
 import Settings from '../components/FreelancerComponents/Settings/Settings';
 import Notifications from '../components/FreelancerComponents/Notifications/Notifications';
+import Payments from '../components/FreelancerComponents/Payments/Payments';
 
 // Placeholder view for secondary Freelancer sub-pages
 const FreelancerPlaceholder = ({ title }) => (
@@ -90,6 +91,8 @@ export default function Freelancer() {
         return <BrowseProjects />;
       case 'my-projects':
         return <MyProjects />;
+      case 'payments':
+        return <Payments />;
       case 'notifications':
         return <Notifications />;
       case 'profile':

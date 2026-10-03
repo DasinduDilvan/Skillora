@@ -9,7 +9,8 @@ const freelancerLinks = [
   { id: 1, label: 'Dashboard', path: '/freelancer/dashboard' },
   { id: 2, label: 'Browse Projects', path: '/freelancer/browse-projects' },
   { id: 3, label: 'My Projects', path: '/freelancer/my-projects' },
-  { id: 4, label: 'Notifications', path: '/freelancer/notifications' },
+  { id: 4, label: 'Payments', path: '/freelancer/payments' },
+  { id: 5, label: 'Notifications', path: '/freelancer/notifications' },
 ];
 
 /* ── helpers ── */
@@ -25,7 +26,7 @@ const rid = (v) => {
   if (!v) return null;
   if (typeof v === 'string') return v;
   if (typeof v === 'object') {
-    return v.freelancerId || v.userId || v.projectId || v._id || v.id || null;
+    return v.freelancerId || v.userId || v.projectId || v.paymentId || v._id || v.id || null;
   }
   return String(v);
 };
@@ -41,6 +42,7 @@ export default function Navbar() {
   const [counts, setCounts] = useState({
     notifications: 0,
     myProjects: 0,
+    payments: 0,
   });
 
   const menuRef = useRef(null);
@@ -60,21 +62,23 @@ export default function Navbar() {
   const avatarLetter = freelancerName.charAt(0).toUpperCase();
   const currentUserId = user?.userId || user?._id || user?.id;
 
-  /* ── Fetch live counts (notifications + my projects) ── */
+  /* ── Fetch live counts (notifications + my projects + pending payments) ── */
   useEffect(() => {
     if (!user || !currentUserId) return;
 
     const fetchCounts = async () => {
       try {
-        const [notifRes, freelancersRes, projectsRes] = await Promise.all([
+        const [notifRes, freelancersRes, projectsRes, paymentsRes] = await Promise.all([
           API.get('/notifications').catch(() => ({ data: [] })),
           API.get('/freelancers').catch(() => ({ data: [] })),
           API.get('/projects').catch(() => ({ data: [] })),
+          API.get('/payments').catch(() => ({ data: [] })),
         ]);
 
         const notifications = asArray(notifRes);
         const freelancers = asArray(freelancersRes);
         const projects = asArray(projectsRes);
+        const payments = asArray(paymentsRes);
 
         // unread notifications
         const unread = notifications.filter(
@@ -87,17 +91,27 @@ export default function Navbar() {
 
         // count active (non-completed / non-cancelled) projects assigned to me
         let myProjectsCount = 0;
+        let pendingPaymentsCount = 0;
+
         if (freelancerId) {
           myProjectsCount = projects.filter((p) => {
             if (!eqId(p.freelancerId, freelancerId)) return false;
             const status = (p.status || '').toLowerCase();
             return status !== 'completed' && status !== 'cancelled';
           }).length;
+
+          // count pending/processing payments for this freelancer
+          pendingPaymentsCount = payments.filter((p) => {
+            if (!eqId(p.freelancerId, freelancerId)) return false;
+            const status = (p.status || '').toLowerCase();
+            return status === 'pending' || status === 'processing';
+          }).length;
         }
 
         setCounts({
           notifications: unread,
           myProjects: myProjectsCount,
+          payments: pendingPaymentsCount,
         });
       } catch (err) {
         console.error('Failed to load navbar counts:', err);
@@ -143,6 +157,7 @@ export default function Navbar() {
   const getBadge = (label) => {
     if (label === 'Notifications') return counts.notifications;
     if (label === 'My Projects') return counts.myProjects;
+    if (label === 'Payments') return counts.payments;
     return 0;
   };
 
@@ -199,6 +214,9 @@ export default function Navbar() {
               <hr />
               <Link to="/freelancer/profile" className="dropdown-item">
                 👤 My Profile
+              </Link>
+              <Link to="/freelancer/payments" className="dropdown-item">
+                💳 Payments
               </Link>
               <Link to="/freelancer/settings" className="dropdown-item">
                 ⚙️ Settings
@@ -271,6 +289,9 @@ export default function Navbar() {
         <div className="mobile-profile-actions">
           <Link to="/freelancer/profile" className="mobile-profile-link">
             👤 My Profile
+          </Link>
+          <Link to="/freelancer/payments" className="mobile-profile-link">
+            💳 Payments
           </Link>
           <Link to="/freelancer/settings" className="mobile-profile-link">
             ⚙️ Settings

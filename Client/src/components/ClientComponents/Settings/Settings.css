@@ -1,0 +1,254 @@
+/* ============================================================
+   CLIENT SETTINGS PAGE (Indigo & Purple Theme)
+============================================================ */
+.cset-page {
+  background: #F5F7FA;
+  min-height: calc(100vh - 72px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding-bottom: 60px;
+}
+
+.cset-loading {
+  min-height: 60vh; display: grid;
+  place-items: center; gap: 14px; color: #64748B;
+}
+.cset-spinner {
+  width: 42px; height: 42px;
+  border: 3px solid #E5E7EB; border-top-color: #4F46E5;
+  border-radius: 50%; animation: csetSpin 0.8s linear infinite;
+}
+@keyframes csetSpin { to { transform: rotate(360deg); } }
+
+/* TOAST */
+.cset-toast {
+  position: fixed; top: 90px; right: 24px; z-index: 2000;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  animation: csetSlideIn 0.3s ease;
+  min-width: 260px;
+}
+.cset-toast p { margin: 0; font-size: 0.88rem; font-weight: 600; }
+.cset-toast-success { background: #fff; border-left: 4px solid #22C55E; color: #15803D; }
+.cset-toast-error   { background: #fff; border-left: 4px solid #EF4444; color: #B91C1C; }
+@keyframes csetSlideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* HERO */
+.cset-hero {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  padding: 44px 4% 40px; color: #fff;
+  position: relative; overflow: hidden;
+}
+.cset-hero::before {
+  content: ''; position: absolute;
+  width: 340px; height: 340px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  top: -140px; right: -60px; filter: blur(50px);
+}
+.cset-hero-inner {
+  max-width: 1600px; margin: 0 auto;
+  position: relative; z-index: 2;
+}
+.cset-hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  padding: 5px 14px; border-radius: 50px;
+  font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.4px; margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.28);
+}
+.cset-hero h1 {
+  font-size: 2.1rem; font-weight: 800;
+  letter-spacing: -0.7px; margin: 0 0 6px; color: #fff;
+}
+.cset-hero p { opacity: 0.92; font-size: 0.95rem; margin: 0; color: #fff; }
+
+/* CONTAINER */
+.cset-container {
+  max-width: 1600px; margin: -24px auto 0;
+  padding: 0 4%; position: relative; z-index: 10;
+}
+.cset-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px; align-items: start;
+}
+
+/* SIDEBAR */
+.cset-sidebar { position: sticky; top: 90px; }
+.cset-user-card {
+  background: #fff; border: 1px solid #E5E7EB;
+  border-radius: 16px; padding: 20px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+.cset-user-avatar {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff; display: grid; place-items: center;
+  font-weight: 700; font-size: 1.15rem;
+  overflow: hidden; flex-shrink: 0;
+}
+.cset-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cset-user-info { flex: 1; min-width: 0; }
+.cset-user-info strong {
+  display: block; font-size: 0.92rem;
+  color: #0F172A; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cset-user-info span {
+  display: block; font-size: 0.75rem; color: #94A3B8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.cset-nav {
+  background: #fff; border: 1px solid #E5E7EB;
+  border-radius: 16px; padding: 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+.cset-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border: none; background: transparent;
+  border-radius: 10px; font-family: inherit;
+  font-size: 0.88rem; font-weight: 600;
+  color: #64748B; cursor: pointer; text-align: left;
+  transition: all 0.2s;
+}
+.cset-nav-item:hover { background: #F8FAFC; color: #334155; }
+.cset-nav-item.active {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.28);
+}
+.cset-nav-icon { font-size: 1.05rem; width: 22px; text-align: center; }
+
+/* CONTENT */
+.cset-content { min-width: 0; }
+.cset-panel {
+  background: #fff; border: 1px solid #E5E7EB;
+  border-radius: 18px; padding: 32px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+.cset-panel-head {
+  margin-bottom: 26px; padding-bottom: 20px;
+  border-bottom: 1px solid #F1F5F9;
+}
+.cset-panel-head h2 {
+  font-size: 1.4rem; font-weight: 800;
+  color: #0F172A; margin: 0 0 4px;
+}
+.cset-panel-head p { font-size: 0.9rem; color: #64748B; margin: 0; }
+
+/* AVATAR */
+.cset-avatar-section {
+  display: flex; gap: 24px; align-items: flex-start;
+  padding: 20px; background: #FAFBFC;
+  border: 1px solid #F1F5F9; border-radius: 12px;
+  margin-bottom: 24px;
+}
+.cset-avatar-lg {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff; display: grid; place-items: center;
+  font-weight: 700; font-size: 2rem;
+  overflow: hidden; flex-shrink: 0;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.2);
+}
+.cset-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+.cset-avatar-actions { flex: 1; min-width: 0; }
+.cset-avatar-actions label {
+  display: block; font-size: 0.82rem;
+  font-weight: 700; color: #334155; margin-bottom: 8px;
+}
+
+/* FORM */
+.cset-grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-bottom: 16px;
+}
+.cset-field {
+  display: flex; flex-direction: column; margin-bottom: 16px;
+}
+.cset-field label {
+  font-size: 0.82rem; font-weight: 700;
+  color: #334155; margin-bottom: 8px;
+}
+.cset-input, .cset-textarea {
+  padding: 12px 14px;
+  border: 1.5px solid #E2E8F0; border-radius: 10px;
+  font-size: 0.9rem; font-family: inherit;
+  outline: none; background: #fff; color: #0F172A;
+  transition: all 0.2s; width: 100%; box-sizing: border-box;
+}
+.cset-input:focus, .cset-textarea:focus {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
+}
+.cset-textarea { resize: vertical; min-height: 80px; }
+.cset-hint { font-size: 0.75rem; color: #94A3B8; margin-top: 6px; }
+.cset-input-danger { border-color: #FECACA; }
+.cset-input-danger:focus {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 4px rgba(239,68,68,0.1);
+}
+
+/* INFO BOX */
+.cset-info-box {
+  display: flex; gap: 14px; padding: 18px;
+  background: #EEF2FF; border: 1px solid #C7D2FE;
+  border-radius: 12px; margin-bottom: 18px;
+}
+.cset-info-icon { font-size: 1.6rem; flex-shrink: 0; }
+.cset-info-box strong {
+  display: block; font-size: 0.95rem;
+  color: #0F172A; font-weight: 700; margin-bottom: 8px;
+}
+.cset-info-box p { font-size: 0.85rem; color: #475569; margin: 0 0 4px; }
+.cset-info-box code {
+  background: #fff; padding: 2px 8px; border-radius: 6px;
+  font-size: 0.75rem; color: #4F46E5; border: 1px solid #E5E7EB;
+}
+.cset-ok, .cset-warn {
+  display: inline-block; padding: 2px 10px;
+  border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+}
+.cset-ok   { background: #DCFCE7; color: #15803D; }
+.cset-warn { background: #FEF3C7; color: #D97706; }
+
+.cset-divider { height: 1px; background: #F1F5F9; margin: 26px 0; }
+
+/* ACTIONS */
+.cset-actions {
+  display: flex; gap: 12px; justify-content: flex-end;
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid #F1F5F9;
+}
+
+/* BUTTONS */
+.cset-btn {
+  padding: 12px 26px; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; border: none; font-family: inherit;
+  display: inline-flex; align-items: center;
+  justify-content: center; gap: 8px;
+  transition: all 0.2s; white-space: nowrap;
+}
+.cset-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.cset-btn-primary {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,0.12);
+}
+.cset-btn-primary:hover { filter: brightness(1.08); }
+.cset-btn-secondary {
+  background: #F1F5F9; color: #334155;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+}
+.cset-btn-secondary:hover { background: #E2E8F0; }
