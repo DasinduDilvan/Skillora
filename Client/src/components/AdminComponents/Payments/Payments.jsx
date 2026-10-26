@@ -17,6 +17,20 @@ const rid = (v) => {
   return v.paymentId || v.projectId || v.userId || v.clientId || v.freelancerId || v._id || v.id;
 };
 
+/* Get the UNIQUE payment ID (not projectId or anything else) */
+const paymentKey = (p) => p?._id || p?.paymentId || p?.id;
+
+/* Remove duplicate payments by unique ID */
+const deduplicate = (arr) => {
+  const seen = new Set();
+  return arr.filter((item) => {
+    const id = paymentKey(item);
+    if (!id || seen.has(String(id))) return false;
+    seen.add(String(id));
+    return true;
+  });
+};
+
 const formatCurrency = (v) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v || 0);
 
@@ -41,7 +55,7 @@ export default function Payments() {
         API.get('/payments'),
         API.get('/projects'),
       ]);
-      setPayments(asArray(p));
+      setPayments(deduplicate(asArray(p)));
       setProjects(asArray(pr));
     } catch (err) {
       console.error(err);
@@ -84,7 +98,7 @@ export default function Payments() {
 
   const updateStatus = async (p, newStatus) => {
     try {
-      await API.put(`/payments/${rid(p)}`, { status: newStatus });
+      await API.put(`/payments/${paymentKey(p)}`, { status: newStatus });
       showToast(`Payment marked as ${newStatus}`);
       fetchAll();
       setSelected(null);
@@ -96,7 +110,7 @@ export default function Payments() {
   const deletePayment = async (p) => {
     if (!window.confirm('Delete this payment record?')) return;
     try {
-      await API.delete(`/payments/${rid(p)}`);
+      await API.delete(`/payments/${paymentKey(p)}`);
       showToast('Payment deleted');
       setSelected(null);
       fetchAll();
@@ -186,8 +200,8 @@ export default function Payments() {
               <tr><td colSpan="8" className="adm-empty">No payments found.</td></tr>
             ) : (
               filtered.map((p) => (
-                <tr key={rid(p)}>
-                  <td><code className="pay-txn">{p.transactionId || rid(p)?.slice(0, 12) || '—'}</code></td>
+                <tr key={paymentKey(p)}>
+                  <td><code className="pay-txn">{p.transactionId || paymentKey(p)?.slice(0, 12) || '—'}</code></td>
                   <td>{getProjectTitle(p.projectId)}</td>
                   <td><strong>{formatCurrency(p.amount)}</strong></td>
                   <td>{p.paymentMethod || '—'}</td>
