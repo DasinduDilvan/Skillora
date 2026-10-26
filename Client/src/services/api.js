@@ -1,15 +1,3 @@
-/**
- * ================================================================
- *  API SERVICE — Centralised HTTP calls.
- *
- *  Currently returns dummy data.  When your backend is ready:
- *    1.  Set BASE_URL to your API endpoint.
- *    2.  Replace the body of each function with a real fetch/axios call.
- *    3.  Components won't need any changes — they already consume
- *        the returned data shape.
- * ================================================================
- */
-
 // Change this to your backend URL when ready
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -25,16 +13,6 @@ import {
   footerData,
 } from '../data/dummyData';
 
-// ── Generic fetcher (uncomment when backend is live) ──
-// async function fetcher(endpoint) {
-//   const res = await fetch(`${BASE_URL}${endpoint}`);
-//   if (!res.ok) throw new Error(`API error: ${res.status}`);
-//   return res.json();
-// }
-
-// ──────────────────────────────────────────────
-// PUBLIC API FUNCTIONS
-// ──────────────────────────────────────────────
 
 /** Navbar links */
 export async function getNavLinks() {

@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -80,11 +79,23 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Generate userId before saving
+// ✅ FIXED: Auto-increment userId safely by finding the highest existing ID
 userSchema.pre("save", async function () {
   if (!this.userId) {
-    const count = await mongoose.model("User").countDocuments();
-    this.userId = `USR${String(count + 1).padStart(5, "0")}`;
+    const lastUser = await mongoose
+      .model("User")
+      .findOne({}, { userId: 1 })
+      .sort({ userId: -1 }); // Gets the highest userId (e.g. USR00002)
+
+    let nextNumber = 1;
+    if (lastUser && lastUser.userId) {
+      const match = lastUser.userId.match(/\d+/);
+      if (match) {
+        nextNumber = parseInt(match[0], 10) + 1;
+      }
+    }
+
+    this.userId = `USR${String(nextNumber).padStart(5, "0")}`;
   }
 
   if (!this.isModified("password")) return;

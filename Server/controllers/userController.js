@@ -1,4 +1,3 @@
-//make those as import statements like the other controllers.js
 import userService from "../services/userService.js";
 import { successResponse, errorResponse } from "../utils/apiResponse.js";
 import {
@@ -34,6 +33,44 @@ const signIn = async (req, res) => {
     return successResponse(res, 200, "Login successful", result);
   } catch (error) {
     return errorResponse(res, 401, error.message);
+  }
+};
+
+// POST /api/users/verify-identity
+const verifyIdentity = async (req, res) => {
+  try {
+    const { email, username } = req.body;
+
+    if (!email || !username) {
+      return errorResponse(res, 400, "Email and username are required");
+    }
+
+    const result = await userService.verifyUserIdentity(email, username);
+    return successResponse(res, 200, "Identity verified successfully", result);
+  } catch (error) {
+    const statusCode = error.message === "No account found with that email and username" ? 404 : 500;
+    return errorResponse(res, statusCode, error.message);
+  }
+};
+
+// POST /api/users/reset-password
+const resetPassword = async (req, res) => {
+  try {
+    const { email, username, newPassword } = req.body;
+
+    if (!email || !username || !newPassword) {
+      return errorResponse(res, 400, "Email, username, and new password are required");
+    }
+
+    if (newPassword.length < 8) {
+      return errorResponse(res, 400, "Password must be at least 8 characters");
+    }
+
+    const result = await userService.resetUserPassword(email, username, newPassword);
+    return successResponse(res, 200, "Password reset successful", result);
+  } catch (error) {
+    const statusCode = error.message === "No account found with that email and username" ? 404 : 500;
+    return errorResponse(res, statusCode, error.message);
   }
 };
 
@@ -110,10 +147,11 @@ const getMe = async (req, res) => {
   }
 };
 
-
 export default {
   signUp,
   signIn,
+  verifyIdentity,    // ← NEW
+  resetPassword,     // ← NEW
   getAllUsers,
   getUserById,
   createUser,

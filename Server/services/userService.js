@@ -164,10 +164,49 @@ const deleteUser = async (userId) => {
   return user;
 };
 
+// Verify user identity by email + username
+const verifyUserIdentity = async (email, username) => {
+  const user = await User.findOne({
+    email: email.toLowerCase(),
+    username: username.toLowerCase(),
+  });
+
+  if (!user) {
+    throw new Error("No account found with that email and username");
+  }
+
+  return {
+    verified: true,
+    userId: user.userId || user._id,
+  };
+};
+
+// Reset user password by email + username
+const resetUserPassword = async (email, username, newPassword) => {
+  const user = await User.findOne({
+    email: email.toLowerCase(),
+    username: username.toLowerCase(),
+  });
+
+  if (!user) {
+    throw new Error("No account found with that email and username");
+  }
+
+  // Hash password the same way your signUpUser does it
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
+
+  await user.save();
+
+  return { message: "Password has been reset" };
+};
+
 export default {
   signUpUser,
   signInUser,
   getAllUsers,
+  verifyUserIdentity,    // ← NEW
+  resetUserPassword,     // ← NEW
   getUserById,
   updateUser,
   deleteUser,
