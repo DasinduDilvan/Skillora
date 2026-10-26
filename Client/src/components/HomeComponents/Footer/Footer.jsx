@@ -1,50 +1,46 @@
 import { Link } from 'react-router-dom';
-import { footerData } from '../../../data/dummyData';
 import './Footer.css';
 
 export default function Footer() {
-  const { brand, columns, bottomLinks, copyright } = footerData;
-
   return (
     <footer className="footer">
-      <div className="container">
+      <div className="footer-container">
         <div className="footer-grid">
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
-              <img src="/logo.png" alt="Skillora Logo" className="logo-img" />
-              {brand.name}
+              <span className="logo-icon">⚡</span>
+              <span className="logo-text">Skillora</span>
             </Link>
-            <p>{brand.description}</p>
+            <p>Connecting talented freelancers with clients worldwide. Build your career, grow your business.</p>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.id}>
-              <h5>{col.title}</h5>
-              <ul>
-                {col.links.map((link, i) => (
-                  <li key={i}>
-                    {link.path.startsWith('mailto:') ||
-                    link.path.startsWith('#') ? (
-                      <a href={link.path}>{link.label}</a>
-                    ) : (
-                      <Link to={link.path}>{link.label}</Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="footer-col">
+            <h4>Platform</h4>
+            <Link to="/auth/signup">Find Freelancers</Link>
+            <Link to="/auth/signup">Post a Project</Link>
+            <Link to="/auth/signup">Browse Projects</Link>
+            <Link to="/auth/signup">Categories</Link>
+          </div>
+
+          <div className="footer-col">
+            <h4>Company</h4>
+            <Link to="/">About Us</Link>
+            <Link to="/">Careers</Link>
+            <Link to="/">Blog</Link>
+            <Link to="/">Contact</Link>
+          </div>
+
+          <div className="footer-col">
+            <h4>Support</h4>
+            <Link to="/">Help Center</Link>
+            <Link to="/">Privacy Policy</Link>
+            <Link to="/">Terms of Service</Link>
+            <Link to="/">Report an Issue</Link>
+          </div>
         </div>
 
         <div className="footer-bottom">
-          <p>{copyright}</p>
-          <div className="footer-bottom-links">
-            {bottomLinks.map((link, i) => (
-              <a key={i} href={link.path}>
-                {link.label}
-              </a>
-            ))}
-          </div>
+          <p>&copy; {new Date().getFullYear()} Skillora. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -13,9 +13,9 @@
 // ──────────────────────────────────────────────
 export const navLinks = [
   { id: 1, label: 'Home', path: '/' },
-  { id: 2, label: 'Browse Projects', path: '/projects' },
-  { id: 3, label: 'Find Freelancers', path: '/freelancers' },
-  { id: 4, label: 'How It Works', path: '/how-it-works' },
+  { id: 1, label: 'Browse Projects', path: '/browse' },
+  { id: 2, label: 'Find Freelancers', path: '/find-freelancers' },
+  { id: 3, label: 'How It Works', path: '#how-it-works' },
 ];
 
 // ──────────────────────────────────────────────

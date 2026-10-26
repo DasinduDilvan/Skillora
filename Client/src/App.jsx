@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
@@ -7,6 +6,7 @@ import Freelancer from './pages/Freelancer';
 import Admin from './pages/Admin';
 import './App.css';
 import PublicBrowseProjects from './components/HomeComponents/PublicBrowseProjects/PublicBrowseProjects';
+import FindFreelancers from './components/HomeComponents/FindFreelancers/FindFreelancers';
 
 function App() {
   return (
@@ -14,9 +14,10 @@ function App() {
       {/* Landing Page */}
       <Route path="/" element={<Home />} />
 
-      {/* Public Browse Projects */}
-      <Route path="/browse" element={<PublicBrowseProjects />} /> {/* <-- 2. Add route */}
+      {/* Public Pages */}
+      <Route path="/browse" element={<PublicBrowseProjects />} />
       <Route path="/projects" element={<Navigate to="/browse" replace />} />
+      <Route path="/find-freelancers" element={<FindFreelancers />} />
 
       {/* Auth Routes */}
       <Route path="/auth/:mode" element={<Auth />} />

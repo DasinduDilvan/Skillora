@@ -1,13 +1,12 @@
-// src/components/HomeComponents/PublicBrowseProjects/PublicBrowseProjects.jsx
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../../../api/axios';
+import Navbar from '../Navbar/Navbar';
 import './PublicBrowseProjects.css';
 
 const PER_PAGE = 9;
 const CLIENT_COLORS = ['#4F46E5', '#7C3AED', '#059669', '#DB2777', '#F59E0B', '#0EA5E9'];
 
-/* ── Helpers ── */
 const formatCurrency = (val) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -37,22 +36,17 @@ const getRawId = (v) => {
   return String(v);
 };
 
-/* ── Mask client name (privacy for guest view) ── */
 const maskClientName = (name) => {
   if (!name || name === 'Client') return 'Verified Client';
   const first = name.charAt(0).toUpperCase();
   return `${first}${'•'.repeat(Math.min(name.length - 1, 6))} Client`;
 };
 
-/* ── Truncate description for teaser ── */
 const teaser = (text, len = 140) => {
   if (!text) return '';
   return text.length > len ? `${text.slice(0, len)}...` : text;
 };
 
-/* ============================================================
-   MAIN COMPONENT
-============================================================ */
 export default function PublicBrowseProjects() {
   const navigate = useNavigate();
 
@@ -61,17 +55,14 @@ export default function PublicBrowseProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters (simplified for public view)
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [budgetFilter, setBudgetFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [page, setPage] = useState(1);
 
-  // Preview modal
   const [previewProject, setPreviewProject] = useState(null);
 
-  /* ── Fetch Public Data ── */
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -85,7 +76,6 @@ export default function PublicBrowseProjects() {
       const allProjects = asArray(projRes);
       const allCategories = asArray(catRes);
 
-      // Category lookup
       const catMap = new Map();
       allCategories.forEach((c) => {
         const id = c.categoryId || c._id;
@@ -94,9 +84,8 @@ export default function PublicBrowseProjects() {
 
       setCategories(allCategories.filter((c) => c.isActive !== false));
 
-      // Resolve projects (public version — minimal data)
       const resolved = allProjects
-        .filter((p) => p.status === 'open') // Only open projects for guests
+        .filter((p) => p.status === 'open')
         .map((p) => {
           const pid = p.projectId || p._id;
           const catId = getRawId(p.categoryId);
@@ -132,7 +121,6 @@ export default function PublicBrowseProjects() {
     fetchData();
   }, [fetchData]);
 
-  /* ── Filters ── */
   const filtered = useMemo(() => {
     let list = projects.filter((p) => {
       if (search.trim()) {
@@ -169,7 +157,6 @@ export default function PublicBrowseProjects() {
     return list;
   }, [projects, search, catFilter, budgetFilter, sortBy]);
 
-  /* ── Stats ── */
   const stats = useMemo(() => ({
     total: projects.length,
     urgent: projects.filter((p) => p.isUrgent).length,
@@ -179,7 +166,6 @@ export default function PublicBrowseProjects() {
       : 0,
   }), [projects]);
 
-  /* ── Pagination ── */
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
@@ -214,341 +200,339 @@ export default function PublicBrowseProjects() {
     setSortBy('newest');
   };
 
-  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="pbp-loading">
-        <div className="pbp-spinner" />
-        <p>Loading available projects...</p>
-      </div>
+      <>
+        <Navbar />
+        <div className="pbp-loading">
+          <div className="pbp-spinner" />
+          <p>Loading available projects...</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="pbp-page">
-      {/* HERO */}
-      <div className="pbp-hero">
-        <div className="pbp-hero-inner">
-          <span className="pbp-hero-badge">🌍 Explore Opportunities</span>
-          <h1>Discover Amazing Projects</h1>
-          <p>
-            Browse thousands of open projects from clients worldwide. Sign up as a freelancer
-            to apply and start earning today.
-          </p>
-          <div className="pbp-hero-cta">
-            <Link to="/auth/signup" className="pbp-btn pbp-btn--white">
-              Join as Freelancer
-            </Link>
-            <Link to="/auth/signin" className="pbp-btn pbp-btn--outline-white">
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* STATS STRIP */}
-      <div className="pbp-stats-strip">
-        <div className="pbp-stat blue">
-          <div className="pbp-stat-icon">📁</div>
-          <div>
-            <span className="pbp-stat-num">{stats.total}</span>
-            <span className="pbp-stat-lbl">Open Projects</span>
-          </div>
-        </div>
-        <div className="pbp-stat amber">
-          <div className="pbp-stat-icon">🔥</div>
-          <div>
-            <span className="pbp-stat-num">{stats.urgent}</span>
-            <span className="pbp-stat-lbl">Urgent Projects</span>
-          </div>
-        </div>
-        <div className="pbp-stat purple">
-          <div className="pbp-stat-icon">🏷️</div>
-          <div>
-            <span className="pbp-stat-num">{stats.categories}</span>
-            <span className="pbp-stat-lbl">Categories</span>
-          </div>
-        </div>
-        <div className="pbp-stat green">
-          <div className="pbp-stat-icon">💰</div>
-          <div>
-            <span className="pbp-stat-num">{formatCurrency(stats.avgBudget)}</span>
-            <span className="pbp-stat-lbl">Avg. Budget</span>
-          </div>
-        </div>
-      </div>
-
-      {/* SEARCH BAR */}
-      <div className="pbp-search-section">
-        <div className="pbp-search-bar">
-          <div className="pbp-search-wrap">
-            <span className="pbp-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search projects by title, category, or keyword..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {search && (
-              <button className="pbp-search-clear" onClick={() => setSearch('')}>×</button>
-            )}
-          </div>
-
-          <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
-            <option value="">All Categories</option>
-            {categories.map((c) => {
-              const id = c.categoryId || c._id;
-              return (
-                <option key={id} value={id}>
-                  {c.name}
-                </option>
-              );
-            })}
-          </select>
-
-          <select value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)}>
-            <option value="">Any Budget</option>
-            <option value="low">Under $100</option>
-            <option value="mid">$100 – $500</option>
-            <option value="high">$500+</option>
-          </select>
-
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="newest">Newest First</option>
-            <option value="budget-high">Budget: High to Low</option>
-            <option value="budget-low">Budget: Low to High</option>
-            <option value="deadline">Deadline: Soonest</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="pbp-container">
-        {error && <div className="pbp-alert">{error}</div>}
-
-        <div className="pbp-results-header">
-          <h2>
-            Showing <span>{filtered.length}</span> open project{filtered.length !== 1 ? 's' : ''}
-          </h2>
-          {(search || catFilter || budgetFilter) && (
-            <button className="pbp-reset-link" onClick={clearFilters}>
-              Reset Filters
-            </button>
-          )}
-        </div>
-
-        {/* PROJECTS GRID */}
-        {paginated.length === 0 ? (
-          <div className="pbp-empty">
-            <div className="pbp-empty-icon">🔍</div>
-            <h3>No projects found</h3>
+    <>
+      <Navbar />
+      <div className="pbp-page">
+        <div className="pbp-hero">
+          <div className="pbp-hero-inner">
+            <span className="pbp-hero-badge">🌍 Explore Opportunities</span>
+            <h1>Discover Amazing Projects</h1>
             <p>
-              {projects.length === 0
-                ? 'There are no open projects at the moment. Please check back soon!'
-                : 'Try adjusting your search or filters to find more projects.'}
+              Browse thousands of open projects from clients worldwide. Sign up as a freelancer
+              to apply and start earning today.
             </p>
-            {projects.length > 0 && (
-              <button className="pbp-btn pbp-btn--primary" onClick={clearFilters}>
-                Clear All Filters
-              </button>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="pbp-grid">
-              {paginated.map((p, i) => (
-                <div
-                  key={p.projectId}
-                  className="pbp-card"
-                  onClick={() => setPreviewProject(p)}
-                >
-                  <div className="pbp-card-head">
-                    <div className="pbp-card-badges">
-                      <span className="pbp-badge pbp-badge-cat">
-                        {p.categoryIcon} {p.categoryName}
-                      </span>
-                      {p.isUrgent && (
-                        <span className="pbp-badge pbp-badge-urgent">🔥 Urgent</span>
-                      )}
-                    </div>
-                    <div className="pbp-card-budget">{formatCurrency(p.budget)}</div>
-                  </div>
-
-                  <h3 className="pbp-card-title">{p.title}</h3>
-                  <p className="pbp-card-desc">{teaser(p.description, 150)}</p>
-
-                  <div className="pbp-card-meta">
-                    <div className="pbp-meta-item">
-                      <span className="pbp-meta-icon">⏰</span>
-                      <span>
-                        {p.daysLeft === null
-                          ? 'Flexible'
-                          : p.daysLeft < 0
-                          ? 'Expired'
-                          : `${p.daysLeft} days left`}
-                      </span>
-                    </div>
-                    <div className="pbp-meta-item">
-                      <span className="pbp-meta-icon">🟢</span>
-                      <span className="pbp-status-open">Open</span>
-                    </div>
-                  </div>
-
-                  <div className="pbp-card-footer">
-                    <div className="pbp-card-client">
-                      <div
-                        className="pbp-client-avatar"
-                        style={{ background: CLIENT_COLORS[i % CLIENT_COLORS.length] }}
-                      >
-                        🔒
-                      </div>
-                      <span>{maskClientName('Client')}</span>
-                    </div>
-                    <span className="pbp-view-more">View Details →</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* PAGINATION */}
-            {totalPages > 1 && (
-              <div className="pbp-pagination">
-                <button
-                  className="pbp-page-btn"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  ‹
-                </button>
-                {getPageNumbers().map((num, idx) =>
-                  num === '...' ? (
-                    <span key={`dots-${idx}`} className="pbp-page-dots">...</span>
-                  ) : (
-                    <button
-                      key={num}
-                      className={`pbp-page-btn ${num === currentPage ? 'active' : ''}`}
-                      onClick={() => setPage(num)}
-                    >
-                      {num}
-                    </button>
-                  )
-                )}
-                <button
-                  className="pbp-page-btn"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  ›
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* CTA BANNER */}
-        <div className="pbp-cta-banner">
-          <div className="pbp-cta-content">
-            <div>
-              <h2>Ready to Start Earning?</h2>
-              <p>Join thousands of freelancers finding meaningful work every day.</p>
-            </div>
-            <div className="pbp-cta-actions">
+            <div className="pbp-hero-cta">
               <Link to="/auth/signup" className="pbp-btn pbp-btn--white">
-                Sign Up Free
+                Join as Freelancer
               </Link>
               <Link to="/auth/signin" className="pbp-btn pbp-btn--outline-white">
-                Login to Apply
+                Sign In
               </Link>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* PREVIEW MODAL */}
-      {previewProject && (
-        <div className="pbp-modal-overlay" onClick={() => setPreviewProject(null)}>
-          <div className="pbp-modal" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="pbp-modal-close"
-              onClick={() => setPreviewProject(null)}
-            >
-              ×
-            </button>
-
-            <div className="pbp-modal-header">
-              <div className="pbp-card-badges">
-                <span className="pbp-badge pbp-badge-cat">
-                  {previewProject.categoryIcon} {previewProject.categoryName}
-                </span>
-                {previewProject.isUrgent && (
-                  <span className="pbp-badge pbp-badge-urgent">🔥 Urgent</span>
-                )}
-                <span className="pbp-badge pbp-badge-open">🟢 Open</span>
-              </div>
-              <h2>{previewProject.title}</h2>
-              <div className="pbp-modal-budget">
-                {formatCurrency(previewProject.budget)}
-              </div>
+        <div className="pbp-stats-strip">
+          <div className="pbp-stat blue">
+            <div className="pbp-stat-icon">📁</div>
+            <div>
+              <span className="pbp-stat-num">{stats.total}</span>
+              <span className="pbp-stat-lbl">Open Projects</span>
             </div>
-
-            <div className="pbp-modal-body">
-              <div className="pbp-modal-section">
-                <h3>Project Preview</h3>
-                <p>{teaser(previewProject.description, 300)}</p>
-                <div className="pbp-locked-content">
-                  <div className="pbp-lock-icon">🔒</div>
-                  <p>
-                    <strong>Sign in to view full project details</strong>
-                  </p>
-                  <p className="pbp-locked-hint">
-                    Get access to complete descriptions, requirements, client information,
-                    and the ability to submit proposals.
-                  </p>
-                </div>
-              </div>
-
-              <div className="pbp-modal-grid">
-                <div className="pbp-modal-stat">
-                  <span className="pbp-modal-stat-label">Budget</span>
-                  <strong>{formatCurrency(previewProject.budget)}</strong>
-                </div>
-                <div className="pbp-modal-stat">
-                  <span className="pbp-modal-stat-label">Deadline</span>
-                  <strong>
-                    {previewProject.daysLeft === null
-                      ? 'Flexible'
-                      : previewProject.daysLeft < 0
-                      ? 'Expired'
-                      : `${previewProject.daysLeft} days`}
-                  </strong>
-                </div>
-                <div className="pbp-modal-stat">
-                  <span className="pbp-modal-stat-label">Category</span>
-                  <strong>{previewProject.categoryName}</strong>
-                </div>
-                <div className="pbp-modal-stat">
-                  <span className="pbp-modal-stat-label">Status</span>
-                  <strong className="pbp-status-open">Accepting Proposals</strong>
-                </div>
-              </div>
+          </div>
+          <div className="pbp-stat amber">
+            <div className="pbp-stat-icon">🔥</div>
+            <div>
+              <span className="pbp-stat-num">{stats.urgent}</span>
+              <span className="pbp-stat-lbl">Urgent Projects</span>
             </div>
-
-            <div className="pbp-modal-footer">
-              <button
-                className="pbp-btn pbp-btn--ghost"
-                onClick={() => setPreviewProject(null)}
-              >
-                Close
-              </button>
-              <button
-                className="pbp-btn pbp-btn--primary"
-                onClick={() => navigate('/auth/signup')}
-              >
-                Sign Up to Apply →
-              </button>
+          </div>
+          <div className="pbp-stat purple">
+            <div className="pbp-stat-icon">🏷️</div>
+            <div>
+              <span className="pbp-stat-num">{stats.categories}</span>
+              <span className="pbp-stat-lbl">Categories</span>
+            </div>
+          </div>
+          <div className="pbp-stat green">
+            <div className="pbp-stat-icon">💰</div>
+            <div>
+              <span className="pbp-stat-num">{formatCurrency(stats.avgBudget)}</span>
+              <span className="pbp-stat-lbl">Avg. Budget</span>
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+        <div className="pbp-search-section">
+          <div className="pbp-search-bar">
+            <div className="pbp-search-wrap">
+              <span className="pbp-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search projects by title, category, or keyword..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <button className="pbp-search-clear" onClick={() => setSearch('')}>×</button>
+              )}
+            </div>
+
+            <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+              <option value="">All Categories</option>
+              {categories.map((c) => {
+                const id = c.categoryId || c._id;
+                return (
+                  <option key={id} value={id}>
+                    {c.name}
+                  </option>
+                );
+              })}
+            </select>
+
+            <select value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)}>
+              <option value="">Any Budget</option>
+              <option value="low">Under $100</option>
+              <option value="mid">$100 – $500</option>
+              <option value="high">$500+</option>
+            </select>
+
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="newest">Newest First</option>
+              <option value="budget-high">Budget: High to Low</option>
+              <option value="budget-low">Budget: Low to High</option>
+              <option value="deadline">Deadline: Soonest</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="pbp-container">
+          {error && <div className="pbp-alert">{error}</div>}
+
+          <div className="pbp-results-header">
+            <h2>
+              Showing <span>{filtered.length}</span> open project{filtered.length !== 1 ? 's' : ''}
+            </h2>
+            {(search || catFilter || budgetFilter) && (
+              <button className="pbp-reset-link" onClick={clearFilters}>
+                Reset Filters
+              </button>
+            )}
+          </div>
+
+          {paginated.length === 0 ? (
+            <div className="pbp-empty">
+              <div className="pbp-empty-icon">🔍</div>
+              <h3>No projects found</h3>
+              <p>
+                {projects.length === 0
+                  ? 'There are no open projects at the moment. Please check back soon!'
+                  : 'Try adjusting your search or filters to find more projects.'}
+              </p>
+              {projects.length > 0 && (
+                <button className="pbp-btn pbp-btn--primary" onClick={clearFilters}>
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="pbp-grid">
+                {paginated.map((p, i) => (
+                  <div
+                    key={p.projectId}
+                    className="pbp-card"
+                    onClick={() => setPreviewProject(p)}
+                  >
+                    <div className="pbp-card-head">
+                      <div className="pbp-card-badges">
+                        <span className="pbp-badge pbp-badge-cat">
+                          {p.categoryIcon} {p.categoryName}
+                        </span>
+                        {p.isUrgent && (
+                          <span className="pbp-badge pbp-badge-urgent">🔥 Urgent</span>
+                        )}
+                      </div>
+                      <div className="pbp-card-budget">{formatCurrency(p.budget)}</div>
+                    </div>
+
+                    <h3 className="pbp-card-title">{p.title}</h3>
+                    <p className="pbp-card-desc">{teaser(p.description, 150)}</p>
+
+                    <div className="pbp-card-meta">
+                      <div className="pbp-meta-item">
+                        <span className="pbp-meta-icon">⏰</span>
+                        <span>
+                          {p.daysLeft === null
+                            ? 'Flexible'
+                            : p.daysLeft < 0
+                            ? 'Expired'
+                            : `${p.daysLeft} days left`}
+                        </span>
+                      </div>
+                      <div className="pbp-meta-item">
+                        <span className="pbp-meta-icon">🟢</span>
+                        <span className="pbp-status-open">Open</span>
+                      </div>
+                    </div>
+
+                    <div className="pbp-card-footer">
+                      <div className="pbp-card-client">
+                        <div
+                          className="pbp-client-avatar"
+                          style={{ background: CLIENT_COLORS[i % CLIENT_COLORS.length] }}
+                        >
+                          🔒
+                        </div>
+                        <span>{maskClientName('Client')}</span>
+                      </div>
+                      <span className="pbp-view-more">View Details →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pbp-pagination">
+                  <button
+                    className="pbp-page-btn"
+                    disabled={currentPage === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    ‹
+                  </button>
+                  {getPageNumbers().map((num, idx) =>
+                    num === '...' ? (
+                      <span key={`dots-${idx}`} className="pbp-page-dots">...</span>
+                    ) : (
+                      <button
+                        key={num}
+                        className={`pbp-page-btn ${num === currentPage ? 'active' : ''}`}
+                        onClick={() => setPage(num)}
+                      >
+                        {num}
+                      </button>
+                    )
+                  )}
+                  <button
+                    className="pbp-page-btn"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="pbp-cta-banner">
+            <div className="pbp-cta-content">
+              <div>
+                <h2>Ready to Start Earning?</h2>
+                <p>Join thousands of freelancers finding meaningful work every day.</p>
+              </div>
+              <div className="pbp-cta-actions">
+                <Link to="/auth/signup" className="pbp-btn pbp-btn--white">
+                  Sign Up Free
+                </Link>
+                <Link to="/auth/signin" className="pbp-btn pbp-btn--outline-white">
+                  Login to Apply
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {previewProject && (
+          <div className="pbp-modal-overlay" onClick={() => setPreviewProject(null)}>
+            <div className="pbp-modal" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="pbp-modal-close"
+                onClick={() => setPreviewProject(null)}
+              >
+                ×
+              </button>
+
+              <div className="pbp-modal-header">
+                <div className="pbp-card-badges">
+                  <span className="pbp-badge pbp-badge-cat">
+                    {previewProject.categoryIcon} {previewProject.categoryName}
+                  </span>
+                  {previewProject.isUrgent && (
+                    <span className="pbp-badge pbp-badge-urgent">🔥 Urgent</span>
+                  )}
+                  <span className="pbp-badge pbp-badge-open">🟢 Open</span>
+                </div>
+                <h2>{previewProject.title}</h2>
+                <div className="pbp-modal-budget">
+                  {formatCurrency(previewProject.budget)}
+                </div>
+              </div>
+
+              <div className="pbp-modal-body">
+                <div className="pbp-modal-section">
+                  <h3>Project Preview</h3>
+                  <p>{teaser(previewProject.description, 300)}</p>
+                  <div className="pbp-locked-content">
+                    <div className="pbp-lock-icon">🔒</div>
+                    <p>
+                      <strong>Sign in to view full project details</strong>
+                    </p>
+                    <p className="pbp-locked-hint">
+                      Get access to complete descriptions, requirements, client information,
+                      and the ability to submit proposals.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pbp-modal-grid">
+                  <div className="pbp-modal-stat">
+                    <span className="pbp-modal-stat-label">Budget</span>
+                    <strong>{formatCurrency(previewProject.budget)}</strong>
+                  </div>
+                  <div className="pbp-modal-stat">
+                    <span className="pbp-modal-stat-label">Deadline</span>
+                    <strong>
+                      {previewProject.daysLeft === null
+                        ? 'Flexible'
+                        : previewProject.daysLeft < 0
+                        ? 'Expired'
+                        : `${previewProject.daysLeft} days`}
+                    </strong>
+                  </div>
+                  <div className="pbp-modal-stat">
+                    <span className="pbp-modal-stat-label">Category</span>
+                    <strong>{previewProject.categoryName}</strong>
+                  </div>
+                  <div className="pbp-modal-stat">
+                    <span className="pbp-modal-stat-label">Status</span>
+                    <strong className="pbp-status-open">Accepting Proposals</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pbp-modal-footer">
+                <button
+                  className="pbp-btn pbp-btn--ghost"
+                  onClick={() => setPreviewProject(null)}
+                >
+                  Close
+                </button>
+                <button
+                  className="pbp-btn pbp-btn--primary"
+                  onClick={() => navigate('/auth/signup')}
+                >
+                  Sign Up to Apply →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

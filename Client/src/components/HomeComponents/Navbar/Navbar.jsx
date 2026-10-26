@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { navLinks } from '../../../data/dummyData';
-import { useAuth } from '../../../context/AuthContext'; // <-- LIVE AUTH
+import { useAuth } from '../../../context/AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -11,15 +11,13 @@ export default function Navbar() {
   const btnRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const { user, logout } = useAuth(); // <-- Get user state
 
-  // Close mobile menu on route change
+  const { user, logout } = useAuth();
+
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  // Close on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -37,12 +35,22 @@ export default function Navbar() {
 
   const toggleMenu = () => setMobileOpen((prev) => !prev);
 
+  // ✅ SMART SCROLL: works even when navigating from other pages
   const handleNavClick = (e, path) => {
     if (path.startsWith('#')) {
       e.preventDefault();
-      const el = document.querySelector(path);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+      setMobileOpen(false);
+
+      // If not on home page, go there first then scroll
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+          const el = document.querySelector(path);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        const el = document.querySelector(path);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   };
@@ -61,9 +69,8 @@ export default function Navbar() {
           Skillora
         </Link>
 
-        {/* Navigation links */}
         <div className="navbar-links">
-          {navLinks.map((link) => (
+          {navLinks.map((link) =>
             link.path.startsWith('#') ? (
               <a
                 key={link.id}
@@ -81,17 +88,20 @@ export default function Navbar() {
                 {link.label}
               </Link>
             )
-          ))}
+          )}
         </div>
 
-        {/* Dynamic Action Buttons */}
         <div className="navbar-actions">
           {user ? (
             <>
               <Link to={`/${user.role}/dashboard`} className="btn btn-ghost">
                 Dashboard
               </Link>
-              <button onClick={handleLogout} className="btn btn-primary" style={{ border: 'none', cursor: 'pointer' }}>
+              <button
+                onClick={handleLogout}
+                className="btn btn-primary"
+                style={{ border: 'none', cursor: 'pointer' }}
+              >
                 Logout
               </button>
             </>
@@ -107,7 +117,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Toggle Button */}
         <button
           ref={btnRef}
           className={`mobile-menu-btn${mobileOpen ? ' active' : ''}`}
@@ -123,20 +132,16 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Drawer */}
       <div
         ref={menuRef}
         className={`mobile-menu${mobileOpen ? ' active' : ''}`}
       >
-        {navLinks.map((link) => (
+        {navLinks.map((link) =>
           link.path.startsWith('#') ? (
             <a
               key={link.id}
               href={link.path}
-              onClick={(e) => {
-                handleNavClick(e, link.path);
-                setMobileOpen(false);
-              }}
+              onClick={(e) => handleNavClick(e, link.path)}
             >
               {link.label}
             </a>
@@ -145,17 +150,29 @@ export default function Navbar() {
               {link.label}
             </Link>
           )
-        ))}
+        )}
         <div className="mobile-actions">
           {user ? (
             <>
-              <Link to={`/${user.role}/dashboard`} className="btn btn-ghost">Dashboard</Link>
-              <button onClick={handleLogout} className="btn btn-primary" style={{width: '100%'}}>Logout</button>
+              <Link to={`/${user.role}/dashboard`} className="btn btn-ghost">
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="btn btn-primary"
+                style={{ width: '100%' }}
+              >
+                Logout
+              </button>
             </>
           ) : (
             <>
-              <Link to="/auth/signin" className="btn btn-secondary">Sign In</Link>
-              <Link to="/auth/signup" className="btn btn-primary">Sign Up</Link>
+              <Link to="/auth/signin" className="btn btn-secondary">
+                Sign In
+              </Link>
+              <Link to="/auth/signup" className="btn btn-primary">
+                Sign Up
+              </Link>
             </>
           )}
         </div>
