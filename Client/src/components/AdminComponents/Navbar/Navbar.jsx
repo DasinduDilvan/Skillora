@@ -10,7 +10,7 @@ const adminLinks = [
   { id: 3, label: 'Projects', path: '/admin/projects' },
   { id: 4, label: 'Categories', path: '/admin/categories' },
   { id: 5, label: 'Payments', path: '/admin/payments' },
-  { id: 6, label: 'Reports', path: '/admin/reports' },
+  //{ id: 6, label: 'Reports', path: '/admin/reports' },
   { id: 7, label: 'Settings', path: '/admin/settings' },
 ];
 

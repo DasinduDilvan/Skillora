@@ -1,4 +1,4 @@
-
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import Freelancer from "../models/Freelancer.js";
 import Client from "../models/Client.js";

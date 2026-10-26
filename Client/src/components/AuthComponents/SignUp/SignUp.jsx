@@ -201,20 +201,23 @@ const SignUp = () => {
           {role === 'freelancer' && (
             <div className="form-group">
               <label htmlFor="primarySkill">Primary Skill *</label>
-              <select
-                id="primarySkill"
-                value={form.primarySkill}
-                onChange={handleChange}
-                className={errors.primarySkill ? 'error' : ''}
-              >
+              <select id="primarySkill" value={form.primarySkill} onChange={handleChange} className={errors.primarySkill ? 'error' : ''}>
                 <option value="">Select your main skill</option>
                 <option>Graphic Design</option>
+                <option>Logo Design</option>
+                <option>UI/UX Design</option>
                 <option>Video Editing</option>
                 <option>Web Development</option>
-                <option>UI/UX Design</option>
-                <option>Software Development</option>
-                <option>Motion Graphics</option>
-                <option>Data Services</option>
+                <option>React.js</option>
+                <option>WordPress</option>
+                <option>Full-Stack Development</option>
+                <option>Content Writing</option>
+                <option>Copywriting</option>
+                <option>Translation</option>
+                <option>Proofreading</option>
+                <option>Technical Support</option>
+                <option>Help Desk</option>
+                <option>Virtual Assistance</option>
               </select>
               {errors.primarySkill && <div className="error-msg">{errors.primarySkill}</div>}
             </div>

@@ -24,7 +24,7 @@ export default function Admin() {
       case 'projects':   return <Projects />;
       case 'categories': return <Categories />;
       case 'payments':   return <Payments />;
-      case 'reports':    return <Reports />;
+      //case 'reports':    return <Reports />;
       case 'settings':   return <Settings />;
       default:           return <Dashboard />;
     }
